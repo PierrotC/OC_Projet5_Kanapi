@@ -32,45 +32,52 @@ function layoutProduct(couch) {
     document
         .getElementById("description")
         .innerText = couch.description;
-
-}
-
-let added = {
-    id: "",
-    qty: "",
-    clr: ""
-}
-
-let test2 = {
-    id: "24",
-    qty: "15",
-    clr: "noir"
+    
+    currentCouch = couch;                   // get the current product object out
 }
 
 let cart = [];
 
-// cart.push({produit: test}, {produit: test2});
-// console.log("id produit 1 : " + cart[0].produit.id + " (expect 422)");
-// console.log("id produit 2 : " + cart[1].produit.id + " (expect 24)");
 
-function addToCart() {
 
-}
+let currentCouch = [];                      // stocks info of the couch in the page
 
 document
     .getElementById("addToCart")
     .addEventListener("click", function() {
-    added.clr = document.getElementById("colors").value;                            // getting the chosen color
-    added.qty = document.getElementById("quantity").value;                          // getting the chosen quantity
-    if (!added.clr) {                                                               // To-do : getting the id of the couch, 
-        alert("Choisissez une couleur");                                            // checking if couch already added,
-    } else if (added.qty == 0) {                                                    // local storage
-        alert("Choisissez une quantité")
-    } else {
-        cart.push({product: added});
-        console.log("Ajouté au panier : " + added.qty + " canapés couleur " + added.clr);
-    }
-        })
+        let added = {
+            id: "",
+            qty: "",
+            clr: ""
+        }
+        added.clr = document.getElementById("colors").value;                            // getting the chosen color
+        added.qty = document.getElementById("quantity").value;                          // getting the chosen quantity
+        added.id = currentCouch._id;
+        let sameProduct = false;
+        let productKey;
+        for(let i in cart) {                                                            // checking if couch already added
+                if (cart[i].id == added.id && cart[i].clr == added.clr) {
+                    sameProduct = true;
+                    productKey = i;
+                }
+            }
+
+        if (!added.clr) {
+            alert("Veuillez choisir une couleur");
+        } else if (added.qty == 0) {
+            alert("Veuillez choisir une quantité")
+        } else if (sameProduct){
+            for (let i = 0; i < added.qty; i++) {                                       // increment qty in cart depending on qty added
+                cart[productKey].qty ++;
+            }
+        } else {
+            cart.push(added);                                                           // new object added in cart
+        }
+
+        localStorage.setItem("cartData", JSON.stringify(cart));                         // update cart in localStorage
+        let testCart = localStorage.getItem("cartData");
+        console.log("Envoyé vers le panier : " + testCart);
+    })
 
 fetch("http://localhost:3000/api/products")
     .then((response) => {
