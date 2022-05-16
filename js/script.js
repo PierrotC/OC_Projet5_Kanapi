@@ -17,7 +17,7 @@ function layout(products) {                                     // For each prod
         let aTag = document.createElement("a");
         aTag.setAttribute("href", "./product.html?id=".concat(product._id));
 
-        document                                                // Setting the layout by appending the elements to their main node
+        document                                                // Setting the layout by appending the elements to their parent node
             .getElementById("items")
                 .appendChild(aTag)
                     .appendChild(artTag)

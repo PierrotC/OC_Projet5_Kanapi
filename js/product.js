@@ -37,9 +37,6 @@ function layoutProduct(couch) {
 }
 
 let cart = [];
-
-
-
 let currentCouch = [];                      // stocks info of the couch in the page
 
 document
@@ -79,28 +76,22 @@ document
         console.log("Envoyé vers le panier : " + testCart);
     })
 
-fetch("http://localhost:3000/api/products")
+var pageUrl = window.location.href;                     // Get the current page URL
+var url = new URL(pageUrl);                             // Object URL is a built-in API in browsers
+var searchParams = new URLSearchParams(url.search);
+
+if (searchParams.has("id")) {                           // Checking if url has id
+    var couchId = searchParams.get("id");                    // Assigning the id to var
+} else {
+    console.error("id non récupéré")
+}
+
+console.log(couchId);
+
+fetch("http://localhost:3000/api/products/".concat(couchId))
     .then((response) => {
         if (response.ok) {
             return response.json();                         // Get everything
-        }
-    })
-    .then((data) => {                                       // Get the couch with its ID
-        var pageUrl = window.location.href;                 // Get the current page URL
-        var url = new URL(pageUrl);                         // Object URL is a built-in API in browsers
-        var searchParams = new URLSearchParams(url.search);
-        if (searchParams.has("id")) {                       // Checking if url has id
-            var id = searchParams.get("id");                // Assigning the id to var
-            
-            for (let product of data) {                     // Match the id to its object
-                if (product._id === id) {
-                    console.log(product.name);
-                    return product;                         // Return the object
-                }
-            }
-
-        } else {
-            console.error("id non récupéré")
         }
     })
     .then((couch) => {
