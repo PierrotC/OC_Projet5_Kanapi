@@ -32,12 +32,17 @@ function layoutProduct(couch) {
     document
         .getElementById("description")
         .innerText = couch.description;
-    
-    currentCouch = couch;                   // get the current product object out
 }
 
-let cart = [];
-let currentCouch = [];                      // stocks info of the couch in the page
+var pageUrl = window.location.href;                     // Get the current page URL
+var url = new URL(pageUrl);                             // Object URL is a built-in API in browsers
+var searchParams = new URLSearchParams(url.search);
+
+if (searchParams.has("id")) {                           // Checking if url has id
+    var couchId = searchParams.get("id");               // Assigning the id to var
+} else {
+    console.error("id non récupéré")
+}
 
 document
     .getElementById("addToCart")
@@ -49,7 +54,13 @@ document
         }
         added.clr = document.getElementById("colors").value;                            // getting the chosen color
         added.qty = document.getElementById("quantity").value;                          // getting the chosen quantity
-        added.id = currentCouch._id;
+        added.id = couchId;
+
+        let currentCartJSON = localStorage.getItem("cartData");                         // getting cart in local storage
+        console.log("current cart in JSON : " + currentCartJSON);
+        let cart = JSON.parse(currentCartJSON);
+        console.log("current cart : " + cart);
+
         let sameProduct = false;
         let productKey;
         for(let i in cart) {                                                            // checking if couch already added
@@ -75,16 +86,6 @@ document
         let testCart = localStorage.getItem("cartData");
         console.log("Envoyé vers le panier : " + testCart);
     })
-
-var pageUrl = window.location.href;                     // Get the current page URL
-var url = new URL(pageUrl);                             // Object URL is a built-in API in browsers
-var searchParams = new URLSearchParams(url.search);
-
-if (searchParams.has("id")) {                           // Checking if url has id
-    var couchId = searchParams.get("id");                    // Assigning the id to var
-} else {
-    console.error("id non récupéré")
-}
 
 console.log(couchId);
 
