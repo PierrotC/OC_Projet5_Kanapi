@@ -92,7 +92,7 @@ console.log(couchId);
 fetch("http://localhost:3000/api/products/".concat(couchId))
     .then((response) => {
         if (response.ok) {
-            return response.json();                         // Get everything
+            return response.json();
         }
     })
     .then((couch) => {

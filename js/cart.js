@@ -1,6 +1,5 @@
-const cart = JSON.parse(localStorage.getItem("cartData"));
+let cart = JSON.parse(localStorage.getItem("cartData"));
 const layoutPromises = [];
-console.log(cart);
 
 function displayProduct(productId, productClr, productQty) {
     return new Promise((resolve) => {                                          // send promise to be resolved
@@ -90,13 +89,54 @@ function displayProduct(productId, productClr, productQty) {
     });
 }
 
-for (let product of cart) {                                                 // check every element of the cart array and display it
+
+for (let product of cart) {                                                         // check every element of the cart array and display it
     const returnedPromise = displayProduct(product.id, product.clr, product.qty);
-    layoutPromises.push(returnedPromise);                                   // push the returned promise to the array
+    layoutPromises.push(returnedPromise);                                           // push the returned promise to the array
 }
 
-Promise.all(layoutPromises).then(() => {
-    let test = document.querySelector(".cart__item__content__settings__delete");
-    console.log("test : " + test);
-})
+Promise.all(layoutPromises).then(() => {                                            // once everything has loaded, manage the events
+
+    console.log(cart);
+    const deleteBtnArray = document.getElementsByClassName("deleteItem");           // listen click on delete buttons
+
+    for (let deleteBtn of deleteBtnArray) {
+    
+        deleteBtn.addEventListener('click', () => {
+            for (let item of cart) {
+                const deletedProduct = deleteBtn.closest('.cart__item');
+                const deletedId = deletedProduct.dataset.id;
+                const deletedClr = deletedProduct.dataset.color;
+        
+                if (item.id == deletedId && item.clr == deletedClr) {
+                    console.log(cart);
+                    cart.splice(cart.indexOf(item), 1);
+                    localStorage.setItem("cartData", JSON.stringify(cart));
+                    console.log(cart);
+                }
+            }
+            deleteBtn.closest('.cart__item').remove();
+        });
+    }
+
+    const qtyInputs = document.getElementsByClassName('itemQuantity');
+
+    for (let qtyInput of qtyInputs) {
+
+        qtyInput.addEventListener('change', (e) => {
+            for (let item of cart) {
+                const changedProduct = qtyInput.closest('.cart__item');
+                const changedId = changedProduct.dataset.id;
+                const changedClr = changedProduct.dataset.color;
+        
+                if (item.id == changedId && item.clr == changedClr) {
+                    console.log(cart);
+                    item.qty = e.target.value;
+                    localStorage.setItem("cartData", JSON.stringify(cart));
+                    console.log(cart);
+                } 
+            }
+        })
+    }
+});
 
