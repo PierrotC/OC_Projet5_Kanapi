@@ -1,5 +1,22 @@
 let cart = JSON.parse(localStorage.getItem("cartData"));
 const layoutPromises = [];
+let productAll = [];
+
+function updatePrice() {
+    let price = 0;
+        for (product of productAll) {
+            price += Number(product.info.price) * Number(product.qty);
+        }
+        document.getElementById("totalPrice").innerText = price;
+}
+
+function updateQty() {
+    let nbOfProducts = 0;
+        for (product of productAll) {
+            nbOfProducts += Number(product.qty);
+        }
+        document.getElementById("totalQuantity").innerText = nbOfProducts;
+}
 
 function displayProduct(productId, productClr, productQty) {
     return new Promise((resolve) => {                                          // send promise to be resolved
@@ -46,7 +63,7 @@ function displayProduct(productId, productClr, productQty) {
             divQtyTag.classList.add("cart__item__content__settings__quantity");
 
             let pQtyTag = document.createElement("p");
-            pQtyTag.innerText = "Qté : ".concat(productQty);
+            pQtyTag.innerText = "Qté : ";
 
             let inputQtyTag = document.createElement("input");
             inputQtyTag.classList.add("itemQuantity");
@@ -79,13 +96,21 @@ function displayProduct(productId, productClr, productQty) {
                         divQtyTag.appendChild(inputQtyTag);
                     divSetTag.appendChild(divDltTag)
                         .appendChild(pDltTag);
+
+            // update the totals and merge cart and product info in productAll
+            productAll.push({
+                clrPicked: productClr,
+                qty: productQty,
+                info: couch
+            })
+            updatePrice();
+            updateQty();
+
             resolve();                                                          // resolve the promise once layout is done
         })
         .catch((error) => {
             console.error("Erreur !");
         });
-
-            
     });
 }
 
@@ -98,16 +123,24 @@ for (let product of cart) {                                                     
 Promise.all(layoutPromises).then(() => {                                            // once everything has loaded, manage the events
 
     console.log(cart);
+    console.log(productAll);
     const deleteBtnArray = document.getElementsByClassName("deleteItem");           // listen click on delete buttons
 
     for (let deleteBtn of deleteBtnArray) {
     
         deleteBtn.addEventListener('click', () => {
+            const deletedProduct = deleteBtn.closest('.cart__item');
+            const deletedId = deletedProduct.dataset.id;
+            const deletedClr = deletedProduct.dataset.color;
+
+            for (let item of productAll) {
+                if (item.info._id == deletedId && item.clrPicked == deletedClr) {
+                    productAll.splice(productAll.indexOf(item), 1);
+                    console.log(productAll);
+                }
+            }
+
             for (let item of cart) {
-                const deletedProduct = deleteBtn.closest('.cart__item');
-                const deletedId = deletedProduct.dataset.id;
-                const deletedClr = deletedProduct.dataset.color;
-        
                 if (item.id == deletedId && item.clr == deletedClr) {
                     console.log(cart);
                     cart.splice(cart.indexOf(item), 1);
@@ -115,7 +148,12 @@ Promise.all(layoutPromises).then(() => {                                        
                     console.log(cart);
                 }
             }
+
             deleteBtn.closest('.cart__item').remove();
+
+            // Update total qty and price
+            updateQty();
+            updatePrice();
         });
     }
 
@@ -124,19 +162,98 @@ Promise.all(layoutPromises).then(() => {                                        
     for (let qtyInput of qtyInputs) {
 
         qtyInput.addEventListener('change', (e) => {
-            for (let item of cart) {
-                const changedProduct = qtyInput.closest('.cart__item');
-                const changedId = changedProduct.dataset.id;
-                const changedClr = changedProduct.dataset.color;
+            const changedProduct = qtyInput.closest('.cart__item');
+            const changedId = changedProduct.dataset.id;
+            const changedClr = changedProduct.dataset.color;
+
+            for (let item of productAll) {
         
-                if (item.id == changedId && item.clr == changedClr) {
+                if (item.info._id == changedId && item.clrPicked == changedClr) {
                     console.log(cart);
                     item.qty = e.target.value;
-                    localStorage.setItem("cartData", JSON.stringify(cart));
-                    console.log(cart);
+                    // let index = productAll.indexOf(item);
+                    
                 } 
             }
+
+            for (let itemCart of cart) {
+                if (itemCart.id == changedId && itemCart.clr == changedClr) {
+                    itemCart.qty = e.target.value;
+                    localStorage.setItem("cartData", JSON.stringify(cart));
+                    console.log(cart);
+                }
+            }
+            
+            // Update total qty and price
+            updateQty();
+            updatePrice();
         })
     }
 });
+
+const orderBtn = document.getElementById('order');
+const form = {
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    email: ""
+};
+
+function checkErrors() {
+    // if error on 'Prénom', write in p, return false
+    // if error on 'Nom', write in p, return false
+    // if error on 'Adresse', write in p, return false
+    // if error on 'Ville', write in p, return false
+    // if error on 'Email', write in p, return false
+    // else return true
+    return true;
+}
+
+orderBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    // checking for errors in form
+    if (checkErrors()) {
+        form.firstName = document.getElementById('firstName').value;
+        form.lastName = document.getElementById('lastName').value;
+        form.address = document.getElementById('address').value;
+        form.city = document.getElementById('city').value;
+        form.email = document.getElementById('email').value;
+        console.log(form);
+
+        // creating array of ids in cart
+        const cartId = [];
+        for (let product of cart) {
+            cartId.push(product.id);
+            console.log(cartId);
+        }
+
+        const order = {
+            contact: form,
+            products: cartId
+        }
+        console.log(order);
+
+        fetch('http://localhost:3000/api/products/order', {
+            method: "POST",
+            headers: { 
+                'Accept': 'application/json', 
+                'Content-Type': 'application/json' 
+                },
+            body: JSON.stringify(order)
+        })
+        .then((response) => {
+            if(response.ok) {
+                return response.json();
+            }
+        })
+        .then((data) => {
+            console.log("response received : " + data);
+            console.log("order ID : " + data.orderId);
+            const confirmationPage = "./confirmation.html?id=".concat(data.orderId);
+            window.location.href = confirmationPage;
+        });
+    }
+})
 
