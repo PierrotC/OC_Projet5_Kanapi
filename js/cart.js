@@ -200,21 +200,71 @@ const form = {
     email: ""
 };
 
-function checkErrors() {
-    // if error on 'Prénom', write in p, return false
-    // if error on 'Nom', write in p, return false
-    // if error on 'Adresse', write in p, return false
-    // if error on 'Ville', write in p, return false
-    // if error on 'Email', write in p, return false
-    // else return true
-    return true;
+function firstNameIsValid() {
+    document.getElementById('firstNameErrorMsg').innerText = '';
+    let input = document.getElementById('firstName').value;
+    let masque = /^([A-z]|-| )+$/g;
+    if (masque.test(input)) {
+        return true;
+    } else {
+        document.getElementById('firstNameErrorMsg').innerText = 'Veuillez renseigner un prénom valide';
+        return false;
+    };
+}
+
+function lastNameIsValid() {
+    document.getElementById('lastNameErrorMsg').innerText = '';
+    let input = document.getElementById('lastName').value;
+    let masque = /^([A-z]|-| )+$/g;
+    if (masque.test(input)) {
+        return true;
+    } else {
+        document.getElementById('lastNameErrorMsg').innerText = 'Veuillez renseigner un nom valide';
+        return false;
+    };
+}
+
+function addressIsValid() {
+    document.getElementById('addressErrorMsg').innerText = '';
+    let input = document.getElementById('address').value;
+    let masque = /^(\d+|\d+[A-z]{2,3}) [A-z]+ ([A-z]| |-)+$/g;
+    if (masque.test(input)) {
+        return true;
+    } else {
+        document.getElementById('addressErrorMsg').innerText = 'Veuillez renseigner une adresse valide';
+        return false;
+    };
+}
+
+function cityIsValid() {
+    document.getElementById('cityErrorMsg').innerText = '';
+    let input = document.getElementById('city').value;
+    let masque = /^([A-z]|-| )+$/g;
+    if (masque.test(input)) {
+        return true;
+    } else {
+        document.getElementById('cityErrorMsg').innerText = 'Veuillez renseigner une ville valide';
+        return false;
+    };
+}
+
+function emailIsValid() {
+    document.getElementById('emailErrorMsg').innerText = '';
+    let input = document.getElementById('email').value;
+    let masque = /^\w+@\w+[.][a-z]{2,3}$/g;
+    if (masque.test(input)) {
+        return true;
+    } else {
+        document.getElementById('emailErrorMsg').innerText = 'Veuillez renseigner un email valide';
+        return false;
+    };
 }
 
 orderBtn.addEventListener('click', (e) => {
     e.preventDefault();
 
     // checking for errors in form
-    if (checkErrors()) {
+    if (firstNameIsValid() && lastNameIsValid() && addressIsValid() && cityIsValid() && emailIsValid()) {
         form.firstName = document.getElementById('firstName').value;
         form.lastName = document.getElementById('lastName').value;
         form.address = document.getElementById('address').value;
@@ -225,8 +275,10 @@ orderBtn.addEventListener('click', (e) => {
         // creating array of ids in cart
         const cartId = [];
         for (let product of cart) {
-            cartId.push(product.id);
-            console.log(cartId);
+            for (let i = 0; i < product.qty; i++) {
+                cartId.push(product.id);
+                console.log(cartId);
+            }
         }
 
         const order = {
@@ -249,7 +301,7 @@ orderBtn.addEventListener('click', (e) => {
             }
         })
         .then((data) => {
-            console.log("response received : " + data);
+            console.log(data);
             console.log("order ID : " + data.orderId);
             const confirmationPage = "./confirmation.html?id=".concat(data.orderId);
             window.location.href = confirmationPage;
