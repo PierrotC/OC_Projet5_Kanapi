@@ -34,14 +34,31 @@ function layoutProduct(couch) {
         .innerText = couch.description;
 }
 
-var pageUrl = window.location.href;                     // Get the current page URL
-var url = new URL(pageUrl);                             // Object URL is a built-in API in browsers
-var searchParams = new URLSearchParams(url.search);
+function getProductId() {
+    var pageUrl = window.location.href;                     // Get the current page URL
+    var url = new URL(pageUrl);                             // Object URL is a built-in API in browsers
+    var searchParams = new URLSearchParams(url.search);
 
-if (searchParams.has("id")) {                           // Checking if url has id
-    var couchId = searchParams.get("id");               // Assigning the id to var
-} else {
-    console.error("id non récupéré")
+    if (searchParams.has("id")) {                           // Checking if url has id
+        return searchParams.get("id");               // Assigning the id to var
+    } else {
+        console.error("id non récupéré")
+    }
+}
+var couchId = getProductId();
+
+function getCart() {
+    let currentCartJSON = localStorage.getItem("cartData");                         // getting cart in local storage
+    if (currentCartJSON) {
+        console.log("current cart in JSON : " + currentCartJSON);
+        const cart = JSON.parse(currentCartJSON);
+        console.log("current cart : " + cart);
+        return cart;
+    } else {
+        const cart = [];
+        console.log("current cart : " + cart);
+        return cart;
+    }
 }
 
 document
@@ -56,10 +73,7 @@ document
         added.qty = document.getElementById("quantity").value;                          // getting the chosen quantity
         added.id = couchId;
 
-        let currentCartJSON = localStorage.getItem("cartData");                         // getting cart in local storage
-        console.log("current cart in JSON : " + currentCartJSON);
-        let cart = JSON.parse(currentCartJSON);
-        console.log("current cart : " + cart);
+        const cart = getCart();
 
         let sameProduct = false;
         let productKey;
