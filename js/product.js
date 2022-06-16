@@ -70,6 +70,8 @@ document
         added.qty = document.getElementById("quantity").value;                          // getting the chosen quantity
         added.id = couchId;
 
+        let kanapName = document.getElementById('title').innerText;
+
         const cart = getCart();
 
         let sameProduct = false;
@@ -89,12 +91,13 @@ document
             for (let i = 0; i < added.qty; i++) {                                       // increment qty in cart depending on qty added
                 cart[productKey].qty ++;
             }
+            alert(added.qty + ' ' + kanapName + ' ' + added.clr + " ajouté(s) au panier !");
         } else {
             cart.push(added);                                                           // new object added in cart
+            alert(added.qty + ' ' + kanapName + ' ' + added.clr + " ajouté(s) au panier !");
         }
 
         localStorage.setItem("cartData", JSON.stringify(cart));                         // update cart in localStorage
-        let testCart = localStorage.getItem("cartData");
     })
 
 fetch("http://localhost:3000/api/products/".concat(couchId))
