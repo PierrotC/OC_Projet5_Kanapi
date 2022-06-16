@@ -35,7 +35,6 @@ fetch("http://localhost:3000/api/products")
     })
     .then((data) => {
         layout(data);
-        console.log("Layout done");
     })
     .catch((error) => {
         console.error("Erreur !");

@@ -50,13 +50,10 @@ var couchId = getProductId();
 function getCart() {
     let currentCartJSON = localStorage.getItem("cartData");                         // getting cart in local storage
     if (currentCartJSON) {
-        console.log("current cart in JSON : " + currentCartJSON);
         const cart = JSON.parse(currentCartJSON);
-        console.log("current cart : " + cart);
         return cart;
     } else {
         const cart = [];
-        console.log("current cart : " + cart);
         return cart;
     }
 }
@@ -98,10 +95,7 @@ document
 
         localStorage.setItem("cartData", JSON.stringify(cart));                         // update cart in localStorage
         let testCart = localStorage.getItem("cartData");
-        console.log("Envoyé vers le panier : " + testCart);
     })
-
-console.log(couchId);
 
 fetch("http://localhost:3000/api/products/".concat(couchId))
     .then((response) => {
@@ -111,7 +105,6 @@ fetch("http://localhost:3000/api/products/".concat(couchId))
     })
     .then((couch) => {
         layoutProduct(couch);                               // Send to layout
-        console.log("Layout done");
     })
     .catch((error) => {
         console.error("Erreur !");

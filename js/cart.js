@@ -122,8 +122,6 @@ for (let product of cart) {                                                     
 
 Promise.all(layoutPromises).then(() => {                                            // once everything has loaded, manage the events
 
-    console.log(cart);
-    console.log(productAll);
     const deleteBtnArray = document.getElementsByClassName("deleteItem");           // listen click on delete buttons
 
     for (let deleteBtn of deleteBtnArray) {
@@ -136,16 +134,13 @@ Promise.all(layoutPromises).then(() => {                                        
             for (let item of productAll) {
                 if (item.info._id == deletedId && item.clrPicked == deletedClr) {
                     productAll.splice(productAll.indexOf(item), 1);
-                    console.log(productAll);
                 }
             }
 
             for (let item of cart) {
                 if (item.id == deletedId && item.clr == deletedClr) {
-                    console.log(cart);
                     cart.splice(cart.indexOf(item), 1);
                     localStorage.setItem("cartData", JSON.stringify(cart));
-                    console.log(cart);
                 }
             }
 
@@ -169,10 +164,7 @@ Promise.all(layoutPromises).then(() => {                                        
             for (let item of productAll) {
         
                 if (item.info._id == changedId && item.clrPicked == changedClr) {
-                    console.log(cart);
-                    item.qty = e.target.value;
-                    // let index = productAll.indexOf(item);
-                    
+                    item.qty = e.target.value;                    
                 } 
             }
 
@@ -180,7 +172,6 @@ Promise.all(layoutPromises).then(() => {                                        
                 if (itemCart.id == changedId && itemCart.clr == changedClr) {
                     itemCart.qty = e.target.value;
                     localStorage.setItem("cartData", JSON.stringify(cart));
-                    console.log(cart);
                 }
             }
             
@@ -270,14 +261,12 @@ orderBtn.addEventListener('click', (e) => {
         form.address = document.getElementById('address').value;
         form.city = document.getElementById('city').value;
         form.email = document.getElementById('email').value;
-        console.log(form);
 
         // creating array of ids in cart
         const cartId = [];
         for (let product of cart) {
             for (let i = 0; i < product.qty; i++) {
                 cartId.push(product.id);
-                console.log(cartId);
             }
         }
 
@@ -285,7 +274,6 @@ orderBtn.addEventListener('click', (e) => {
             contact: form,
             products: cartId
         }
-        console.log(order);
 
         fetch('http://localhost:3000/api/products/order', {
             method: "POST",
@@ -301,8 +289,6 @@ orderBtn.addEventListener('click', (e) => {
             }
         })
         .then((data) => {
-            console.log(data);
-            console.log("order ID : " + data.orderId);
             const confirmationPage = "./confirmation.html?id=".concat(data.orderId);
             window.location.href = confirmationPage;
         });
